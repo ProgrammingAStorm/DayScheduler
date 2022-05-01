@@ -14,8 +14,8 @@ function setCurrentDay() {
 function auditTimes() {
     var now = moment().format("h A");//The format needs to be set when now is initialized, otherwise isSame() won't compare properly, and the present class will never get assigned.
 
-    $(".time-block").each(function(index){
-        $(this).removeClass("future").removeClass("present").removeClass("past")
+    $(".time-block").each(index => {
+        $(this).find("textarea").removeClass("future").removeClass("present").removeClass("past")
 
         if(moment(now, "h A").isBefore(
            moment($(this).attr("data-hour"),
@@ -37,21 +37,57 @@ function auditTimes() {
 
 //Handler for the save event button
 function saveEventHandler() {
+    var text = $(this).prev().val();
 
+    saveEvents(text, $(this).parent().attr("data-pos"));
 }
 
 //Saves the time blocks.
-function saveEvents() {
+function saveEvents(text, pos) {
+    loadEvents();
 
+    for(var x = 0; x < events.length; x++) {
+        if(events[x].pos === pos) {
+            events.splice(x, 1, {
+                text: text,
+                pos: pos
+            })
+
+            localStorage.setItem("events", JSON.stringify(events));
+
+            return
+        }
+    }
+
+    events.push({
+        text: text,
+        pos: pos
+    });
+
+    localStorage.setItem("events", JSON.stringify(events));
 }
 
 //Loads the time blocks.
 function loadEvents() {
-    events = localStorage.getItem("events")
+    events = JSON.parse(localStorage.getItem("events"));
 
     if(!events) {
-        events = []
+        events = [];
     }
+}
+
+//Loads saved events into the time blocks.
+function loadElements() {
+    loadEvents();
+
+    $(".time-block").each(index => {
+        for(var x = 0; x < events.length; x++) {
+            if($(this).attr("data-pos") === events[x].pos) {
+                $(this).find("textarea").val(events[x].text);
+                break;
+            }
+        }
+    })
 }
 
 setCurrentDay();
@@ -62,3 +98,4 @@ setInterval(auditTimes, (60 * 1000) * 15);
 $(".container").on("click", "button", saveEventHandler)
 
 loadEvents()
+loadElements()

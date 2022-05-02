@@ -5,7 +5,7 @@ function setCurrentDay() {
     $('#currentDay')
     .text(
         moment().format( 
-            "dddd, MMMM Do YYYY, h:mm:ss A" //This string is to set the right formatting of the moment object.
+            "dddd, MMMM Do YYYY, h:mm A" //This string is to set the right formatting of the moment object.
         )
     );
 }
@@ -14,23 +14,24 @@ function setCurrentDay() {
 function auditTimes() {
     var now = moment().format("h A");//The format needs to be set when now is initialized, otherwise isSame() won't compare properly, and the present class will never get assigned.
 
-    $(".time-block").each(index => {
-        $(this).find("textarea").removeClass("future").removeClass("present").removeClass("past")
+    $(".time-block").each(function(index) {
+        var textarea = $("textarea")[index];
+        textarea.className = '';
 
         if(moment(now, "h A").isBefore(
            moment($(this).attr("data-hour"),
            "h A"))) {
-            $(this).find("textarea").addClass("future");
+            textarea.className = 'future';
         }
         if(moment(now, "h A").isSame(
             moment($(this).attr("data-hour"),
             "h A"))) {
-            $(this).find("textarea").addClass("present");
+                textarea.className = 'present';
         }
         if(moment(now, "h A").isAfter(
             moment($(this).attr("data-hour"),
             "h A"))) {
-            $(this).find("textarea").addClass("past");
+                textarea.className = 'past';
         }        
     })
 }
@@ -80,10 +81,10 @@ function loadEvents() {
 function loadElements() {
     loadEvents();
 
-    $(".time-block").each(index => {
+    $(".time-block").each(function(index) {
         for(var x = 0; x < events.length; x++) {
             if($(this).attr("data-pos") === events[x].pos) {
-                $(this).find("textarea").val(events[x].text);
+                $("textarea")[index].value = events[x].text
                 break;
             }
         }
